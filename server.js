@@ -5,6 +5,7 @@ require('dotenv').config();
 const morgan = require('morgan');
 const connectDB = require('./configs/database');
 const authRoutes = require('./routes/authroutes');
+const riderRoutes = require('./routes/riderRoutes');
 const errorMiddleware = require("./middlewares/errorMiddleware");
 
 
@@ -34,7 +35,7 @@ app.get('/api', (req, res) => {
 
 //routes
 app.use('/api/auth', authRoutes);
-
+app.use('/api/riders', riderRoutes);
 
 
 //Creating PORT Listner
