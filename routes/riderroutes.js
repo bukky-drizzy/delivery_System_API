@@ -12,8 +12,8 @@ const {
   updateLocation,
   deleteRider,
 } = require("../controllers/ridercontroller");
-const protectedRoute = require("../middlewares/authmiddleware");
-const rolemiddleware = require("../middlewares/rolemiddleware");
+const protectedRoute = require("../middlewares/authMiddleware");
+const rolemiddleware = require("../middlewares/roleMiddleware");
 
 
 

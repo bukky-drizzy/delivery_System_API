@@ -1,11 +1,37 @@
+const express = require('express');
+const router = express.Router();
+
+const { 
+    registerAdmin, 
+    loginAdmin, 
+    getAdminProfile 
+} = require('../controllers/adminController');
+
 const protectedroute = require('../middlewares/authMiddleware');
 const roleMiddleware = require('../middlewares/roleMiddleware');
 
-// Example: Only Super Admin can access this
-router.get('/dashboard', protectedroute, roleMiddleware('superadmin'), adminController.getDashboard);
+// ====================== PUBLIC ROUTES ======================
+router.post('/register', registerAdmin);     // Register new admin
+router.post('/login', loginAdmin);           // Login admin
 
-// Example: Admin and Dispatcher can access this
-router.get('/all-users', protectedroute, roleMiddleware('superadmin', 'dispatcher'), adminController.getAllUsers);
+// ====================== PROTECTED ROUTES ======================
 
-// Example: Any admin level can access
-router.post('/approve-rider', protectedroute, roleMiddleware('superadmin', 'dispatcher', 'operations'), adminController.approveRider);
+// Get Admin Profile (Any logged-in admin)
+router.get('/profile', protectedroute, getAdminProfile);
+
+// Example: Only Super Admin can access these
+router.get('/dashboard', protectedroute, roleMiddleware('superadmin'), (req, res) => {
+    res.json({ message: "Super Admin Dashboard" });
+});
+
+// Get all users (Super Admin & Dispatcher)
+router.get('/users', protectedroute, roleMiddleware('superadmin', 'dispatcher'), (req, res) => {
+    res.json({ message: "All users - to be implemented" });
+});
+
+// Approve Rider (Admin levels)
+router.put('/approve-rider/:id', protectedroute, roleMiddleware('superadmin', 'dispatcher'), (req, res) => {
+    res.json({ message: "Rider approval route - to be implemented" });
+});
+
+module.exports = router;

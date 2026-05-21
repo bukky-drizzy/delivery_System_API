@@ -1,5 +1,6 @@
 const Rider = require("../models/rider");
 const jwt = require("../configs/jwt");
+const bcrypt = require('bcrypt');
 
 // register rider
 const registerRider = async (req, res, next) => {
@@ -29,7 +30,6 @@ try {
     phoneNumber,
     email,
     password: hashedPassword,
-    role,
     vehicleType,
     plateNumber
   });
