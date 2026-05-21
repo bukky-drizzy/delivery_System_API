@@ -3,25 +3,24 @@ const mongoose = require('mongoose');
 const adminSchema = new mongoose.Schema({
     fullName: {
         type: String,
-        required: [true, "Full name is required"],
+        required: true,
         trim: true
     },
     email: {
         type: String,
-        required: [true, "Email is required"],
+        required: true,
         unique: true,
         lowercase: true,
         trim: true
     },
     password: {
         type: String,
-        required: [true, "Password is required"],
-        minlength: 6,
+        required: true,
         select: false
     },
     phoneNumber: {
         type: String,
-        required: [true, "Phone number is required"]
+        required: true
     },
     role: {
         type: String,
@@ -33,12 +32,9 @@ const adminSchema = new mongoose.Schema({
         default: true
     },
     lastLogin: {
-        type: Date,
-        default: null
+        type: Date
     }
-}, { 
-    timestamps: true 
-});
+}, { timestamps: true });
 
 const Admin = mongoose.model('Admin', adminSchema);
 module.exports = Admin;

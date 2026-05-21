@@ -1,71 +1,33 @@
-const Admin = require('../models/admin');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+const adminService = require('../services/adminService');
 
-// Register Admin
 const registerAdmin = async (req, res) => {
     try {
-        const { fullName, email, password, phoneNumber, role } = req.body;
-
-        // Check if admin already exists
-        const existingAdmin = await Admin.findOne({ email });
-        if (existingAdmin) {
-            return res.status(400).json({ message: "Admin with this email already exists" });
-        }
-
-        // Hash password
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-
-        const newAdmin = await Admin.create({
-            fullName,
-            email,
-            password: hashedPassword,
-            phoneNumber,
-            role: role || 'dispatcher'
-        });
-
+        const admin = await adminService.registerAdmin(req.body);
         res.status(201).json({
+            success: true,
             message: "Admin registered successfully",
             admin: {
-                id: newAdmin._id,
-                fullName: newAdmin.fullName,
-                email: newAdmin.email,
-                role: newAdmin.role
+                id: admin._id,
+                fullName: admin.fullName,
+                email: admin.email,
+                role: admin.role
             }
         });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(400).json({
+            success: false,
+            message: error.message
+        });
     }
 };
 
-// Login Admin
 const loginAdmin = async (req, res) => {
     try {
         const { email, password } = req.body;
+        const { admin, token } = await adminService.loginAdmin(email, password);
 
-        const admin = await Admin.findOne({ email }).select('+password');
-        if (!admin) {
-            return res.status(401).json({ message: "Invalid credentials" });
-        }
-
-        const isMatch = await bcrypt.compare(password, admin.password);
-        if (!isMatch) {
-            return res.status(401).json({ message: "Invalid credentials" });
-        }
-
-        // Update last login
-        admin.lastLogin = new Date();
-        await admin.save();
-
-        // Generate JWT
-        const token = jwt.sign(
-            { id: admin._id, role: admin.role },
-            process.env.JWT_SECRET,
-            { expiresIn: '1d' }
-        );
-
-        res.json({
+        res.status(200).json({
+            success: true,
             message: "Login successful",
             token,
             admin: {
@@ -76,11 +38,30 @@ const loginAdmin = async (req, res) => {
             }
         });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(401).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+const getAdminProfile = async (req, res) => {
+    try {
+        const admin = await adminService.getAdminById(req.user.id);
+        res.status(200).json({
+            success: true,
+            admin
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Server error"
+        });
     }
 };
 
 module.exports = {
     registerAdmin,
-    loginAdmin
+    loginAdmin,
+    getAdminProfile
 };

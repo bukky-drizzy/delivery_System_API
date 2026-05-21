@@ -1,38 +1,26 @@
 const express = require('express');
 const router = express.Router();
 
-const userController = require('../controllers/userController');
+const { 
+    registerUser, 
+    loginUser, 
+    getProfile 
+} = require('../controllers/userController');
 
 const protectedroute = require('../middlewares/authMiddleware');
+const roleMiddleware = require('../middlewares/roleMiddleware');
 
-/*
-|--------------------------------------------------------------------------
-| Public Routes
-|--------------------------------------------------------------------------
-*/
+// Public Routes
+router.post('/register', registerUser);
+router.post('/login', loginUser);
 
-// Register user
-router.post('/register', userController.registerUser);
+// Protected Routes
+router.get('/profile', protectedroute, getProfile);
 
-// Login user
-router.post('/login', userController.loginUser);
-
-/*
-|--------------------------------------------------------------------------
-| Protected Routes
-|--------------------------------------------------------------------------
-*/
-
-// Get logged-in user profile
-router.get('/profile', protectedroute, userController.getUserProfile);
-
-// Update logged-in user profile
-router.put('/profile', protectedroute, userController.updateUserProfile);
-
-// Change password
-router.put('/change-password', protectedroute, userController.changePassword);
-
-// Logout user
-router.post('/logout', protectedroute, userController.logoutUser);
+// Example: Only Admin can access this
+router.get('/all', protectedroute, roleMiddleware('admin', 'superadmin'), async (req, res) => {
+    // You can implement get all users later
+    res.json({ message: "All users route - to be implemented" });
+});
 
 module.exports = router;
