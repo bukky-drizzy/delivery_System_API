@@ -8,10 +8,13 @@ const authRoutes = require('./routes/authroutes');
 const riderRoutes = require('./routes/riderRoutes');
 const errorMiddleware = require("./middlewares/errorMiddleware");
 const paymentRoutes = require("./routes/paymentroutes");
+const orderroutes = require("./routes/orderroutes");
+const trackingRoutes = require("./routes/trackingroutes");
 
 
 const app = express();
 app.use(errorMiddleware);
+
 
 const PORT = process.env.PORT || 5050
 
@@ -38,6 +41,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api/riders', riderRoutes);
 app.use("/api", dispatchRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/orders", orderroutes);
+app.use("/api/track", trackingRoutes);
+
 
 //Creating PORT Listner
 app.listen(PORT, () => {

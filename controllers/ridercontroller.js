@@ -1,4 +1,6 @@
 const Rider = require("../models/rider");
+const Order = require("../models/order");
+const bcrypt = require("bcrypt");
 const jwt = require("../configs/jwt");
 
 // register rider
@@ -12,6 +14,7 @@ try {
       message: "Please provide all required fields",
     });
   }
+
   //check if rider already exists
   const existingRider = await Rider.findOne({$or: [{ email }, { phoneNumber }]});
 
@@ -21,8 +24,10 @@ try {
       message: "Rider already exists",
     });
   }
+
   //hash password
   const hashedPassword = await bcrypt.hash(password, 12);
+
   //create rider
   const rider = await Rider.create({
     fullName,
@@ -33,8 +38,10 @@ try {
     vehicleType,
     plateNumber
   });
+
   //generate token
   const token = jwt.generateToken(rider);
+
   //send response
   res.status(201).json({
     success: true,
@@ -98,33 +105,23 @@ const loginRider = async (req, res, next) => {
   }
 };
 
-/* // CREATE RIDER
-const createRider = async (req, res, next) => {
+// GET ALL ORDERS FOR A RIDER
+const getRiderOrders = async (req, res, next) => {
   try {
-    
-    const {fullName, phoneNumber, email, vehicleType, plateNumber} = req.body;
+    const orders = await Order.find({ rider: req.params.id }).populate(
+      "rider"
+    );
 
-    
-
-    if (!fullName || !phoneNumber || !email  || !plateNumber) {
-      return res.status(400).json({
-        success: false,
-        message: "Please provide all required fields",
-      });
-    }
-
-    const rider = await Rider.create(req.body);
-
-    res.status(201).json({
+    res.status(200).json({
       success: true,
-      message: "Rider created successfully",
-      data: rider,
+      count: orders.length,
+      data: orders,
     });
   } catch (error) {
     next(error);
   }
 };
- */
+
 
 // GET ALL RIDERS
 const getAllRiders = async (req, res, next) => {
@@ -220,38 +217,6 @@ const updateAvailability = async (req, res, next) => {
 };
 
 
-// UPDATE DELIVERY STATUS
-const updateDeliveryStatus = async (req, res, next) => {
-  try {
-    const rider = await Rider.findByIdAndUpdate(
-      req.params.id,
-      {
-        deliveryStatus: req.body.deliveryStatus,
-      },
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
-
-    if (!rider) {
-      return res.status(404).json({
-        success: false,
-        message: "Rider not found",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Delivery status updated",
-      data: rider,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-
 // UPDATE LOCATION
 const updateLocation = async (req, res, next) => {
   try {
@@ -315,7 +280,6 @@ module.exports = {
   getAllRiders,
   getSingleRider,
   updateAvailability,
-  updateDeliveryStatus,
   updateLocation,
   updateRider,
   deleteRider

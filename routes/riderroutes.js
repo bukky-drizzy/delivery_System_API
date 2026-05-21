@@ -27,8 +27,6 @@ router.get("/:id", protectedRoute, rolemiddleware(), getSingleRider);
 
 router.patch("/:id/availability", protectedRoute, rolemiddleware(), updateAvailability);
 
-router.patch("/:id/delivery-status", protectedRoute, rolemiddleware(), updateDeliveryStatus);
-
 router.patch("/:id/location", protectedRoute, rolemiddleware(), updateLocation);
 
 router.delete("/:id", protectedRoute, rolemiddleware(), deleteRider);
