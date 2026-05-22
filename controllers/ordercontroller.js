@@ -1,176 +1,5 @@
-/* const Order = require("../models/order");
-const Rider = require("../models/rider");
-
-
-// CREATE ORDER
-const createOrder = async (req, res, next) => {
-  try {
-
-    const order = await Order.create(req.body);
-
-    res.status(201).json({
-      success: true,
-      message: "Order created successfully",
-      data: order,
-    });
-
-  } catch (error) {
-    next(error);
-  }
-};
-
-
-// GET ALL ORDERS
-const getAllOrders = async (req, res, next) => {
-  try {
-
-    const orders = await Order.find()
-      .populate("rider");
-
-    res.status(200).json({
-      success: true,
-      count: orders.length,
-      data: orders,
-    });
-
-  } catch (error) {
-    next(error);
-  }
-};
-
-
-// GET SINGLE ORDER
-const getSingleOrder = async (req, res, next) => {
-  try {
-
-    const order = await Order.findById(req.params.id)
-      .populate("rider");
-
-    if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: "Order not found",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      data: order,
-    });
-
-  } catch (error) {
-    next(error);
-  }
-};
-
-
-// ASSIGN RIDER
-const assignRider = async (req, res, next) => {
-  try {
-
-    const { riderId } = req.body;
-
-    const order = await Order.findById(req.params.id);
-
-    if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: "Order not found",
-      });
-    }
-
-    // CHECK RIDER
-    const rider = await Rider.findById(riderId);
-
-    if (!rider) {
-      return res.status(404).json({
-        success: false,
-        message: "Rider not found",
-      });
-    }
-
-    // CHECK AVAILABILITY
-    if (rider.availability !== "AVAILABLE") {
-      return res.status(400).json({
-        success: false,
-        message: "Rider is not available",
-      });
-    }
-
-    // ASSIGN RIDER
-    order.rider = riderId;
-
-    order.orderStatus = "ASSIGNED";
-
-    await order.save();
-
-    // UPDATE RIDER STATUS
-    rider.availability = "BUSY";
-
-    await rider.save();
-
-    res.status(200).json({
-      success: true,
-      message: "Rider assigned successfully",
-      data: order,
-    });
-
-  } catch (error) {
-    next(error);
-  }
-};
-
-
-// UPDATE ORDER STATUS
-const updateOrderStatus = async (req, res, next) => {
-  try {
-
-    const order = await Order.findById(req.params.id);
-
-    if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: "Order not found",
-      });
-    }
-
-    order.orderStatus = req.body.orderStatus;
-
-    await order.save();
-
-    res.status(200).json({
-      success: true,
-      message: "Order status updated",
-      data: order,
-    });
-
-  } catch (error) {
-    next(error);
-  }
-};
-
-
-module.exports = {
-  createOrder,
-  getAllOrders,
-  getSingleOrder,
-  assignRider,
-  updateOrderStatus,
-}; */
-
-
-
-
-
-
-
-
-
-
-
-
 const Order = require("../models/order");
-
+const cloudinary = require("../configs/cloudinary");
 const generateTrackingId = require("../utils/generateTrackingId");
 
 
@@ -274,32 +103,6 @@ const getAllOrders = async (req, res, next) => {
   }
 };
 
-/* const trackOrder = async (req, res, next) => {
-  try {
-
-    const order = await Order.findOne({
-      trackingId: req.params.trackingId,
-    }).populate("rider");
-
-    if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: "Order not found",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      trackingId: order.trackingId,
-      status: order.orderStatus,
-      rider: order.rider,
-      data: order,
-    });
-
-  } catch (error) {
-    next(error);
-  }
-}; */
 
 const getOrderHistory = async (req, res, next) => {
   try {
@@ -346,10 +149,118 @@ const updateOrderStatus = async (req, res, next) => {
     next(error);
   }
 };
+const uploadProofOfDelivery = async (req,res,next) => {
+  try {
 
+    const order = await Order.findById(
+      req.params.id
+    );
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+    if (order.rider.toString() !== req.user.id) {
+      return res.status(403).json({
+      success: false,
+      message: "You are not authorized to upload proof for this order",
+     });
+    }
+
+    // UPLOAD TO CLOUDINARY
+    const result =
+      await cloudinary.uploader.upload(
+        req.file.path,
+        {
+          folder: "proof_of_delivery",
+        }
+      );
+
+    // SAVE TO DATABASE
+    order.proofOfDelivery = {
+      image: result.secure_url,
+
+      deliveredAt: new Date(),
+    };
+
+    order.orderStatus = "DELIVERED";
+
+    await order.save();
+
+    res.status(200).json({
+      success: true,
+
+      message:
+        "Proof of delivery uploaded",
+
+      data: order,
+    });
+
+  } catch (error) {
+    next(error);
+  }
+};
+
+const uploadDamageReport = async (req,res,next) => {
+  try {
+
+    const order = await Order.findById(
+      req.params.id
+    );
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+    if (order.rider.toString() !== req.user.id) {
+      return res.status(403).json({
+      success: false,
+      message: "You are not authorized to upload proof for this order",
+     });
+    }
+
+    // CLOUDINARY UPLOAD
+    const result =
+      await cloudinary.uploader.upload(
+        req.file.path,
+        {
+          folder: "damage_reports",
+        }
+      );
+
+    // SAVE DAMAGE REPORT
+    order.damageReport = {
+      image: result.secure_url,
+
+      reason: req.body.reason,
+
+      reportedAt: new Date(),
+    };
+
+    await order.save();
+
+    res.status(200).json({
+      success: true,
+
+      message:
+        "Damage report uploaded",
+
+      data: order,
+    });
+
+  } catch (error) {
+    next(error);
+  }
+};
 module.exports = {
   createOrder,
   getAllOrders,
   updateOrderStatus,
   getOrderHistory,
+  uploadProofOfDelivery,
+  uploadDamageReport
 };

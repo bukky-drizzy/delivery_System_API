@@ -92,6 +92,17 @@ const orderSchema = new mongoose.Schema(
       ref: "Rider",
       default: null,
     },
+
+    proofOfDelivery: {
+      image: String,
+      deliveredAt: Date,
+    },
+
+    damageReport: {
+      image: String,
+      reason: String,
+      reportedAt: Date,
+    },
   },
   {
     timestamps: true,
