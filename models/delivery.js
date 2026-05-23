@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema({
         required: [true, "Full name is required"],
         trim: true
     },
+
     email: {
         type: String,
         required: [true, "Email is required"],
@@ -13,33 +14,28 @@ const userSchema = new mongoose.Schema({
         lowercase: true,
         trim: true
     },
+
     password: {
         type: String,
         required: [true, "Password is required"],
         minlength: 6,
-        select: false
+        select: false          // Never return password in queries
     },
-    phoneNumber: {
-        type: String,
-        required: [true, "Phone number is required"]
-    },
+
     role: {
         type: String,
         enum: ['customer', 'business', 'rider', 'admin'],
         default: 'customer'
     },
+
     isActive: {
         type: Boolean,
         default: true
-    },
-    isEmailVerified: {
-        type: Boolean,
-        default: false
-    },
-    lastLogin: {
-        type: Date
     }
-}, { timestamps: true });
+
+}, {
+    timestamps: true
+});
 
 const User = mongoose.model('User', userSchema);
 module.exports = User;

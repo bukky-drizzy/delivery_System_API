@@ -1,45 +1,40 @@
 const mongoose = require('mongoose');
 
-const userSchema = new mongoose.Schema({
+const adminSchema = new mongoose.Schema({
     fullName: {
         type: String,
-        required: [true, "Full name is required"],
+        required: true,
         trim: true
     },
     email: {
         type: String,
-        required: [true, "Email is required"],
+        required: true,
         unique: true,
         lowercase: true,
         trim: true
     },
     password: {
         type: String,
-        required: [true, "Password is required"],
-        minlength: 6,
+        required: true,
         select: false
     },
     phoneNumber: {
         type: String,
-        required: [true, "Phone number is required"]
+        required: true
     },
     role: {
         type: String,
-        enum: ['customer', 'business', 'rider', 'admin'],
-        default: 'customer'
+        enum: ['superadmin', 'dispatcher', 'operations'],
+        default: 'dispatcher'
     },
     isActive: {
         type: Boolean,
         default: true
-    },
-    isEmailVerified: {
-        type: Boolean,
-        default: false
     },
     lastLogin: {
         type: Date
     }
 }, { timestamps: true });
 
-const User = mongoose.model('User', userSchema);
-module.exports = User;
+const Admin = mongoose.model('Admin', adminSchema);
+module.exports = Admin;

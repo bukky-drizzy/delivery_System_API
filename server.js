@@ -4,7 +4,7 @@ const morgan = require('morgan');
 const connectDB = require('./configs/database');
 
 const authRoutes = require('./routes/authroutes');
-const riderRoutes = require('./routes/riderRoutes');
+const riderRoutes = require('./routes/riderroutes');
 const errorMiddleware = require("./middlewares/errorMiddleware");
 const paymentRoutes = require("./routes/paymentroutes");
 const orderroutes = require("./routes/orderroutes");
@@ -12,7 +12,8 @@ const trackingRoutes = require("./routes/trackingroutes");
 const userRoutes = require("./routes/UserRoutes");
 const adminRoutes = require("./routes/adminSetupRoute");
 const dispatchRoutes = require("./routes/dispatchRoutes");
-
+const otpRoutes = require('./routes/otpRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 
 
 const app = express();
@@ -43,6 +44,8 @@ app.get('/api', (req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/riders', riderRoutes);
+app.use('/api/otp', otpRoutes);
+app.use('/api/notifications', notificationRoutes);
 app.use("/api", dispatchRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/orders", orderroutes);

@@ -6,7 +6,7 @@ const {createDispatchController,
        getAllDispatchesController,
        getDispatchByIdController,
        reassignRiderController
- } = require("../controllers/dispatchController");
+ } = require("../controllers/dispatchcontroller");
 
 // Create a new dispatch
 router.post("/dispatch", createDispatchController);
