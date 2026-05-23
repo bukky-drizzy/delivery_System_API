@@ -13,3 +13,6 @@ const generateToken = (user) => {
     { expiresIn: '1d' }
   );
 };
+
+
+module.exports = generateToken;

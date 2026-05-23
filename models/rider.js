@@ -28,7 +28,6 @@ const riderSchema = new mongoose.Schema(
       minlength: 6,
     },
 
-
     role: {
       type: String,
       enum: ["RIDER"],

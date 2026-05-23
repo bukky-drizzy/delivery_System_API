@@ -1,11 +1,32 @@
 const jwt = require('../configs/jwt');
 const User = require('../models/user');
-const bcrypt = require('bcrypt');
+const bcrypt = require("bcrypt");
+
+// handling errors
+const handleErrors = (err) => {
+  let errors = { name: '', email: '', password: '' };
+
+  // checking duplicate entries
+  if (err.code === 11000) {
+    errors.email = 'Email already in use';
+
+    return errors;
+  }
+
+  // validation errors
+  if (err.message.includes('user validation failed')) {
+    Object.values(err.errors).forEach(({ properties }) => {
+      errors[properties.path] = properties.message;
+    });
+  }
+
+  return errors;
+}
 
 // signup controller
 const signup = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, phone } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -24,6 +45,7 @@ const signup = async (req, res) => {
       name,
       email,
       password: hashedPassword,
+      phone,
       role:  'user'
     });
 
@@ -45,10 +67,12 @@ const signup = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
+     console.error(err);
+
+    const errors = handleErrors(err);
 
     res.status(500).json({
-      message: 'Server error'
+      errors
     });
   }
 };
@@ -59,7 +83,7 @@ const login = async (req, res) => {
     const { email, password } = req.body;
 
     // Find user
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).select("+password");
 
     // Check user
     if (!user) {
@@ -91,16 +115,14 @@ const login = async (req, res) => {
       }
     });
 
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error(err);
 
     res.status(500).json({
       message: 'Server error'
     });
   }
 };
-
-
 
 module.exports = {
   signup,

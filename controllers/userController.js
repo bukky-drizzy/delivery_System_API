@@ -1,88 +1,123 @@
-const userService = require('../services/userServices');
+const User = require("../models/user");
 
-// Register User
-const registerUser = async (req, res) => {
-    try {
-        const { fullName, email, password, phoneNumber, role } = req.body;
-
-        const user = await userService.registerUser({
-            fullName,
-            email,
-            password,
-            phoneNumber,
-            role
-        });
-
-        res.status(201).json({
-            success: true,
-            message: "User registered successfully",
-            user: {
-                id: user._id,
-                fullName: user.fullName,
-                email: user.email,
-                role: user.role
-            }
-        });
-    } catch (error) {
-        res.status(400).json({
-            success: false,
-            message: error.message
-        });
-    }
+// Getting all users (ADMIN)
+exports.getUsers = async (req, res) => {
+  try {
+    const users = await User.find().select("-password");
+    res.json(users);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'try again later'});
+  }
 };
 
-// Login User
-const loginUser = async (req, res) => {
-    try {
-        const { email, password } = req.body;
+// Get single user
+exports.getUserById = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select("-password");
 
-        const { user, token } = await userService.loginUser(email, password);
-
-        res.status(200).json({
-            success: true,
-            message: "Login successful",
-            token,
-            user: {
-                id: user._id,
-                fullName: user.fullName,
-                email: user.email,
-                role: user.role
-            }
-        });
-    } catch (error) {
-        res.status(401).json({
-            success: false,
-            message: error.message
-        });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
+
+    res.json(user);
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ message: 'try again later' });
+  }
 };
 
-// Get Current User Profile
-const getProfile = async (req, res) => {
-    try {
-        const user = await userService.getUserById(req.user.id);
-
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: "User not found"
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            user
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: "Server error"
-        });
-    }
+// Getting logged-in user profile
+exports.getMe = async (req, res) => {
+  res.json({
+    id: req.user._id,
+    name: req.user.name,
+    email: req.user.email,
+    role: req.user.role,
+  });
 };
 
-module.exports = {
-    registerUser,
-    loginUser,
-    getProfile
+// Update user i set this to either (self or admin)
+exports.updateUser = async (req, res) => {
+  try {
+    const { name, email, phone } = req.body;
+
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Only owner or admin
+    if (
+      req.user._id.toString() !== user._id.toString() &&
+      req.user.role !== "admin"
+    ) {
+      return res.status(403).json({ message: "Not allowed" });
+    }
+
+    user.name = name || user.name;
+    user.phone = phone || user.phone;
+    user.email = email || user.email;
+
+    await user.save();
+
+    res.json(user);
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ message: 'try again later' });
+  }
+};
+
+// Delete user (ADMIN)
+exports.deleteUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    await user.deleteOne();
+
+    res.json({ message: "User deleted" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Set role (ADMIN ONLY)
+exports.setUserRole = async (req, res) => {
+  try {
+    const { role } = req.body;
+
+    const allowedRoles = ["user", "admin", "dispatcher", "rider"];
+
+    if (!allowedRoles.includes(role)) {
+      return res.status(400).json({ message: "Invalid role" });
+    }
+
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Prevent admin removing themselves
+    if (
+      req.user._id.toString() === user._id.toString() &&
+      role !== "admin"
+    ) {
+      return res.status(400).json({
+        message: "You cannot remove your own admin role",
+      });
+    }
+
+    user.role = role;
+    await user.save();
+
+    res.json({ message: "Role updated", user });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };

@@ -12,8 +12,8 @@ const {
   updateLocation,
   deleteRider,
 } = require("../controllers/ridercontroller");
-const protectedRoute = require("../middlewares/authMiddleware");
-const rolemiddleware = require("../middlewares/roleMiddleware");
+const {protect, authorize} = require("../middlewares/authmiddleware");
+
 
 
 
@@ -21,16 +21,14 @@ router.post("/signup", registerRider);
 
 router.post("/login", loginRider);
 
-router.get("/",  protectedRoute, rolemiddleware() , getAllRiders);
+router.get("/",  protect, authorize() , getAllRiders);
 
-router.get("/:id", protectedRoute, rolemiddleware(), getSingleRider);
+router.get("/:id", protect, authorize() , getSingleRider);
 
-router.patch("/:id/availability", protectedRoute, rolemiddleware(), updateAvailability);
+router.patch("/:id/availability", protect, authorize() , updateAvailability);
 
-router.patch("/:id/delivery-status", protectedRoute, rolemiddleware(), updateDeliveryStatus);
+router.patch("/:id/location", protect, authorize() , updateLocation);
 
-router.patch("/:id/location", protectedRoute, rolemiddleware(), updateLocation);
-
-router.delete("/:id", protectedRoute, rolemiddleware(), deleteRider);
+router.delete("/:id", protect, authorize() , deleteRider);
 
 module.exports = router;

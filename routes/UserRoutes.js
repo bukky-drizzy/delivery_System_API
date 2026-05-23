@@ -1,26 +1,33 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
-const { 
-    registerUser, 
-    loginUser, 
-    getProfile 
-} = require('../controllers/userController');
+const {
+  getUsers,
+  getUserById,
+  getMe,
+  updateUser,
+  deleteUser,
+  setUserRole,
+} = require("../controllers/userController");
 
-const protectedroute = require('../middlewares/authMiddleware');
-const roleMiddleware = require('../middlewares/roleMiddleware');
+const { protect, authorize } = require("../middlewares/authMiddleware");
 
-// Public Routes
-router.post('/register', registerUser);
-router.post('/login', loginUser);
+// Logged-in user profile
+router.get("/me", protect, getMe);
 
-// Protected Routes
-router.get('/profile', protectedroute, getProfile);
+// Admin: get all users
+router.get("/", protect, authorize("admin"), getUsers);
 
-// Example: Only Admin can access this
-router.get('/all', protectedroute, roleMiddleware('admin', 'superadmin'), async (req, res) => {
-    // You can implement get all users later
-    res.json({ message: "All users route - to be implemented" });
-});
+// Get single user
+router.get("/:id", protect, getUserById);
+
+// Update user (self or admin)
+router.patch("/:id", protect, updateUser);
+
+// Delete user (admin only)
+router.delete("/:id", protect, authorize("admin"), deleteUser);
+
+// Set role (admin only)
+router.patch("/:id/role", protect, authorize("admin"), setUserRole);
 
 module.exports = router;
