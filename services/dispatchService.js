@@ -1,4 +1,5 @@
-const Dispatch = require('../models/dispatch');
+const Dispatch = require('../models/dispatch'); //
+const Rider = require('../models/rider'); 
 
 // Create a new dispatch
 const createDispatch = async (dispatchData) => {
@@ -19,12 +20,28 @@ const assignRider = async (dispatchId, riderId) => {
 if (dispatch.deliveryStatus === "delivered") {
    throw new Error("Delivered dispatch cannot be reassigned");
 }
+
+
+const rider = await Rider.findById(riderId);
+
+if (!rider) {
+   throw new Error("Rider not found");
+}
+
+// Check if rider is available
+if (rider.availability !== "AVAILABLE") {
+   throw new Error("Rider is not available");
+}
+
 dispatch.rider = riderId;
+
+rider.availability = "BUSY";
 
 dispatch.deliveryStatus = "assigned";
 
 dispatch.assignedAt = new Date();
 
+await rider.save();
 await dispatch.save();
 
 return dispatch;
@@ -50,9 +67,18 @@ if (!allowedStatuses.includes(status)) {
    throw new Error("Invalid delivery status");
 }
 dispatch.deliveryStatus = status;
+
 if (status === "delivered") {
    dispatch.deliveredAt = new Date();
+
+   const rider = await Rider.findById(dispatch.rider);
+
+   if (rider) {
+      rider.availability = "AVAILABLE";
+
+await rider.save();
 }
+} 
 await dispatch.save();
 
 return dispatch;
