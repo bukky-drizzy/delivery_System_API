@@ -12,10 +12,6 @@ const generateToken = (user) => {
     process.env.JWT_SECRET, 
     { expiresIn: '1d' }
   );
-<<<<<<< HEAD
 };
 
 module.exports = generateToken;
-=======
-};
->>>>>>> 9373da73fd1d3583f80173fa4d6a5c0e5bc6d353
