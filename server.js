@@ -1,15 +1,18 @@
-const dispatchRoutes = require("./routes/dispatchRoutes");
-
 const express = require('express');
 require('dotenv').config();
 const morgan = require('morgan');
 const connectDB = require('./configs/database');
+
 const authRoutes = require('./routes/authroutes');
 const riderRoutes = require('./routes/riderRoutes');
 const errorMiddleware = require("./middlewares/errorMiddleware");
 const paymentRoutes = require("./routes/paymentroutes");
 const orderroutes = require("./routes/orderroutes");
 const trackingRoutes = require("./routes/trackingroutes");
+const userRoutes = require("./routes/UserRoutes");
+const adminRoutes = require("./routes/adminSetupRoute");
+const dispatchRoutes = require("./routes/dispatchRoutes");
+
 
 
 const app = express();
@@ -37,12 +40,18 @@ app.get('/api', (req, res) => {
 });
 
 //routes
+
 app.use('/api/auth', authRoutes);
 app.use('/api/riders', riderRoutes);
 app.use("/api", dispatchRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/orders", orderroutes);
 app.use("/api/track", trackingRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/setup", require("./routes/adminSetupRoute"));
+
+
 
 
 //Creating PORT Listner
