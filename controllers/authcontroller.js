@@ -6,7 +6,7 @@ const bcrypt = require("bcrypt");
 const handleErrors = (err) => {
   let errors = { name: '', email: '', password: '' };
 
-  // checking duplicate entries
+  // checking duplicate enties
   if (err.code === 11000) {
     errors.email = 'Email already in use';
 
@@ -37,37 +37,31 @@ const signup = async (req, res) => {
       });
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 12);
-
     // Create user
-    const newUser = new User({
+    const user = await User.create({
       name,
       email,
-      password: hashedPassword,
+      password,
       phone,
-      role:  'user'
+      role: 'user'
     });
 
-    // Save user
-    await newUser.save();
-
     // Generate token
-    const token = jwt.generateToken(newUser);
+    const token = jwt(user);
 
     // Send response
     res.status(201).json({
       token,
       user: {
-        id: newUser._id,
-        name: newUser.name,
-        email: newUser.email,
-        role: newUser.role
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role
       }
     });
 
-  } catch (error) {
-     console.error(err);
+  } catch (err) {
+    console.error(err);
 
     const errors = handleErrors(err);
 
@@ -90,7 +84,7 @@ const login = async (req, res) => {
       return res.status(400).json({
         message: 'Invalid credentials'
       });
-    }
+    } 
 
     // Compare password
     const isMatch = await bcrypt.compare(password, user.password);
@@ -102,7 +96,7 @@ const login = async (req, res) => {
     }
 
     // Generate token
-    const token = jwt.generateToken(user);
+   const token = jwt(user);
 
     // Send response
     res.json({
