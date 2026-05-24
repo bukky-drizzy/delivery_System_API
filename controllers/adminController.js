@@ -94,3 +94,18 @@ exports.getDeliveriesWithFilter = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+// Missing getDeliveryStats implementation
+exports.getDeliveryStats = async (req, res) => {
+  try {
+    res.json({
+      total: 0,
+      pending: 0,
+      assigned: 0,
+      picked: 0,
+      delivered: 0
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};

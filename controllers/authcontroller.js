@@ -1,6 +1,6 @@
 const jwt = require('../configs/jwt');
 const User = require('../models/user');
-const bcrypt = require("bcryptjs");
+const bcrypt = require("bcrypt");
 
 // handling errors
 const handleErrors = (err) => {

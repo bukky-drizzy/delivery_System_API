@@ -34,3 +34,6 @@ exports.authorize = (...roles) => {
     next();
   };
 };
+
+module.exports = roleMiddleware;
+
