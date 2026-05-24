@@ -280,10 +280,6 @@ npm install --save-dev jest supertest
 
 Then create test files and update the test script in `package.json`.
 
-## 📝 API Documentation
-
-For detailed API documentation, refer to the individual route files in the `routes/` directory or set up Swagger documentation using `swagger-jsdoc` and `swagger-ui-express`.
-
 ## 🤝 Contributing
 
 1. Fork the repository
@@ -305,7 +301,4 @@ This project is licensed under the ISC License - see the LICENSE file for detail
 
 Created as a comprehensive delivery system management solution.
 
----
-
-**Last Updated**: May 2026
 
