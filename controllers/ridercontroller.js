@@ -4,7 +4,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("../configs/jwt");
 
 
-// register rider
+/* // register rider
 const registerRider = async (req, res, next) => {
 try {
   const { fullName, phoneNumber, email, password, vehicleType, plateNumber } = req.body;
@@ -103,11 +103,13 @@ const loginRider = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-};
+}; */
 
 // GET ALL ORDERS FOR A RIDER
 const getRiderOrders = async (req, res, next) => {
   try {
+   
+
     const orders = await Order.find({ rider: req.params.id }).populate(
       "rider"
     );
@@ -275,8 +277,7 @@ const deleteRider = async (req, res,next) => {
 };
 
 module.exports = {
-  registerRider,
-  loginRider,
+
   getAllRiders,
   getSingleRider,
   updateAvailability,
