@@ -3,6 +3,9 @@ require('dotenv').config();
 const morgan = require('morgan');
 const connectDB = require('./configs/database');
 
+
+const authRoutes = require("./routes/authRoutes");
+const userRoutes = require("./routes/UserRoutes");
 const authRoutes = require('./routes/authroutes');
 const riderRoutes = require('./routes/riderroutes');
 const errorMiddleware = require("./middlewares/errorMiddleware");
@@ -53,9 +56,6 @@ app.use("/api/track", trackingRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/setup", require("./routes/adminSetupRoute"));
-
-
-
 
 //Creating PORT Listner
 app.listen(PORT, () => {

@@ -1,14 +1,5 @@
-const User = require("../models/user");
-
-// Mocking Delivery model to prevent database errors since the Delivery schema doesn't exist
-const Delivery = {
-  countDocuments: async () => 0,
-  find: () => ({
-    populate: () => ({
-      populate: async () => []
-    })
-  })
-};
+const User = require("../models/User");
+const Delivery = require("../models/Delivery");
 
 // One-time admin creation
 exports.createFirstAdmin = async (req, res) => {

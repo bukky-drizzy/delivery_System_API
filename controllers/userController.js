@@ -1,4 +1,4 @@
-const User = require("../models/user");
+const User = require("../models/User");
 
 // Getting all users (ADMIN)
 exports.getUsers = async (req, res) => {
@@ -58,7 +58,7 @@ exports.updateUser = async (req, res) => {
 
     user.name = name || user.name;
     user.phone = phone || user.phone;
-    user.email = email || user.email;
+    User.email = email || User.email;
 
     await user.save();
 
