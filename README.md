@@ -299,7 +299,10 @@ This project is licensed under the ISC License - see the LICENSE file for detail
 
 ## 👤 Author
 
-Created as a comprehensive delivery system management solution.
+@2bigjay
+@bukky-drizzy
+@Oludotun-coder
+@Tom070904
 
 
 
